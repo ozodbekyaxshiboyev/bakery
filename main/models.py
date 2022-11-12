@@ -18,9 +18,9 @@ class BaseModel(models.Model):
 
 
 class Category(BaseModel):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, db_index=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,related_name='child')
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,related_name='category')
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='category')
 
 
     def __str__(self):
@@ -34,7 +34,7 @@ class Bakery(BaseModel):
     is_active = models.BooleanField(default=True)
     open_at = models.TimeField()
     close_at = models.TimeField()
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,related_name='bakery')
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='bakery')
 
     class Meta:
         constraints = [
@@ -47,12 +47,7 @@ class Bakery(BaseModel):
 
 class Bread(BaseModel):
     name = models.CharField(max_length=50)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='bread')
-    price = models.DecimalField(validators=[validate_amount])
-    description = models.CharField(max_length=300, default="nothing is to describe")
-    image = models.ImageField(upload_to='bread/images')
-    kg = models.FloatField(validators=[validate_amount],blank=True, null=True)
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,related_name='bread')
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='bread')
 
 
     def __str__(self):
@@ -61,8 +56,13 @@ class Bread(BaseModel):
 
 class BreadItem(BaseModel):
     bread = models.ForeignKey(Bread, on_delete=models.CASCADE, related_name='breaditem')
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='bread')
+    price = models.DecimalField(validators=[validate_amount])
+    description = models.CharField(max_length=300, default="nothing is to describe")
+    image = models.ImageField(upload_to='bread/images')
+    kg = models.FloatField(validators=[validate_amount], blank=True, null=True)
     count = models.PositiveIntegerField()
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,related_name='breaditem')
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='breaditem')
 
 
     def __str__(self):
@@ -71,6 +71,7 @@ class BreadItem(BaseModel):
 
 class Order(BaseModel):
     client = models.ForeignKey(Client, on_delete=models.CASCADE,related_name='order')
+    address = models.CharField(max_length=200)
     status = models.CharField(max_length=20, choices=Status.choices())
 
     def get_total_cost(self):
