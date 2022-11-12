@@ -73,8 +73,9 @@ class Order(BaseModel):
     address = models.CharField(max_length=200)
     status = models.CharField(max_length=20, choices=Status.choices(), default=Status.new.value)
 
+    @property
     def get_total_cost(self):
-        return sum(item.get_total_price() for item in self.order_items.all())
+        return sum(item.get_total_price for item in self.order_items.all())
 
     def __str__(self):
         return f"{self.created_date} {self.client.full_name} {self.status}"
@@ -86,6 +87,7 @@ class OrderItem(BaseModel):
     count = models.PositiveIntegerField()
     price = models.DecimalField(validators=[validate_amount])
 
+    @property
     def get_total_price(self):
         return self.count * self.price
 
