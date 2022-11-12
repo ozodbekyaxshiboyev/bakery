@@ -43,7 +43,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(phone_number, first_name, last_name, email, password, **extra_fields)
 
 
-class DirectorsManager(BaseUserManager):
+class DirectorsManager(models.Manager):
     def get_queryset(self):
         return super(DirectorsManager, self).get_queryset().filter(
             role=UserRoles.director.value)
@@ -56,20 +56,20 @@ class DirectorsManager(BaseUserManager):
 class VendorsManager(models.Manager):
     def get_queryset(self):
         return super(VendorsManager, self).get_queryset().filter(
-            role=UserRoles.manager.value)
+            role=UserRoles.vendor.value)
 
     def create(self, **kwargs):
-        kwargs.update({'role': UserRoles.manager.value})
+        kwargs.update({'role': UserRoles.vendor.value})
         return super(VendorsManager, self).create(**kwargs)
 
 
 class BakersManager(models.Manager):
     def get_queryset(self):
         return super(BakersManager, self).get_queryset().filter(
-            role=UserRoles.teacher.value)
+            role=UserRoles.baker.value)
 
     def create(self, **kwargs):
-        kwargs.update({'role': UserRoles.teacher.value})
+        kwargs.update({'role': UserRoles.baker.value})
         return super(BakersManager, self).create(**kwargs)
 
 
@@ -77,8 +77,8 @@ class BakersManager(models.Manager):
 class ClientManager(models.Manager):
     def get_queryset(self):
         return super(ClientManager, self).get_queryset().filter(
-            role=UserRoles.student.value)
+            role=UserRoles.client.value)
 
     def create(self, **kwargs):
-        kwargs.update({'role': UserRoles.student.value})
+        kwargs.update({'role': UserRoles.client.value})
         return super(ClientManager, self).create(**kwargs)

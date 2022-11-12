@@ -49,7 +49,6 @@ class Bread(BaseModel):
     name = models.CharField(max_length=50)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='bread')
 
-
     def __str__(self):
         return self.name
 
@@ -72,7 +71,7 @@ class BreadItem(BaseModel):
 class Order(BaseModel):
     client = models.ForeignKey(Client, on_delete=models.CASCADE,related_name='order')
     address = models.CharField(max_length=200)
-    status = models.CharField(max_length=20, choices=Status.choices())
+    status = models.CharField(max_length=20, choices=Status.choices(), default=Status.new.value)
 
     def get_total_cost(self):
         return sum(item.get_total_price() for item in self.order_items.all())
