@@ -18,10 +18,8 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=UserRoles.choices())
     image = models.FileField(upload_to=location_image, validators=[validate_image, custom_validator], blank=True, null=True,
                              help_text='Maximum file size allowed is 2Mb')
-
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['first_name', 'last_name']
-
     objects = CustomUserManager()
 
     @property
