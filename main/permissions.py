@@ -24,9 +24,3 @@ class IsClient(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.role == UserRoles.client.value
 
-
-class Orderpermission(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.user.role == UserRoles.client.value:
-            if request.method == "get":
-                return

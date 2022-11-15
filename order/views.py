@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,CreateAPIView,RetrieveUpdateAPIView
+from rest_framework.generics import ListCreateAPIView,\
+    RetrieveUpdateDestroyAPIView,CreateAPIView,RetrieveUpdateAPIView,ListAPIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions, status
 
 from .enums import Status
-from .serializers import OrderSerilizer,OrderItemSerilizer,OrderClientSerilizer
+from .serializers import OrderSerilizer, OrderItemSerilizer, OrderClientSerilizer, OrderBakerSerilizer
 from .models import Order,OrderItem
 from main.permissions import DirectorPermission,IsnotclientPermission,IsClient,IsOwner
 from rest_framework.decorators import api_view,permission_classes
@@ -40,9 +41,22 @@ def cancel_order(request,order_pk):
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class OrderItemCreateApiView(CreateAPIView):
+class OrderItemViewset(ModelViewSet):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerilizer
     permission_classes = [IsClient]
+
+
+class OrderListApiView(ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerilizer
+    permission_classes = [IsnotclientPermission]
+
+
+class OrderChangeApiView(RetrieveUpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderBakerSerilizer
+    permission_classes = [IsnotclientPermission]
+    lookup_field = 'order_pk'
 
 

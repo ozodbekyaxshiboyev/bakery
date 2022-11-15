@@ -30,6 +30,14 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+    class Meta:
+        constraints = (models.UniqueConstraint(
+                name='unique_director_role',
+                fields=['role'],
+                condition=models.Q(role=UserRoles.director.value)
+            ),
+        )
+
 
 class Director(User):
     objects = DirectorsManager()
