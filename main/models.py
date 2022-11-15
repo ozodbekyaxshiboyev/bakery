@@ -21,10 +21,6 @@ class Category(BaseModel):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,related_name='child',limit_choices_to={"is_deleted":False})
     creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True,  related_name='category')
 
-    def clean(self):
-        if self.creator.role == UserRoles.client.value:
-            raise ValidationError("Xaridor non ma`lumotlari kirita olmaydi!")
-
     @property
     def is_parent(self):
         return self.parent is None
@@ -47,10 +43,6 @@ class Bakery(BaseModel):
     close_at = models.TimeField()
 
 
-    def clean(self):
-        if self.creator.role != UserRoles.director.value:
-            raise ValidationError("Direktordan boshqa odam do`konni boshqara olmaydi!")
-
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'address'], name="name-address")
@@ -64,11 +56,9 @@ class Bread(BaseModel):
     name = models.CharField(max_length=50)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='bread')
     description = models.CharField(max_length=300, default="nothing is to describe")
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='bread')
+    image = models.ImageField(upload_to='bread/images')
+    creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, related_name='bread')
 
-    def clean(self):
-        if self.creator.role == UserRoles.client.value:
-            raise ValidationError("Xaridor non ma`lumotlari kirita olmaydi!")
 
     def __str__(self):
         return self.name
@@ -77,14 +67,10 @@ class Bread(BaseModel):
 class BreadItem(BaseModel):
     bread = models.ForeignKey(Bread, on_delete=models.CASCADE, related_name='breaditem')
     price = models.FloatField(validators=[validate_amount])
-    image = models.ImageField(upload_to='bread/images')
     kg = models.FloatField(validators=[validate_amount], blank=True, null=True)
     count = models.PositiveIntegerField()
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='bread_item')
+    creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, related_name='bread_item')
 
-    def clean(self):
-        if self.creator.role == UserRoles.client.value:
-            raise ValidationError("Xaridor non ma`lumotlari kirita olmaydi!")
 
 
     def __str__(self):
