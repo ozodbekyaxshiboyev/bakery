@@ -59,7 +59,6 @@ class Bread(BaseModel):
     image = models.ImageField(upload_to='bread/images')
     creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, related_name='bread')
 
-
     def __str__(self):
         return self.name
 
@@ -68,10 +67,14 @@ class BreadItem(BaseModel):
     bread = models.ForeignKey(Bread, on_delete=models.CASCADE, related_name='breaditem')
     price = models.FloatField(validators=[validate_amount])
     kg = models.FloatField(validators=[validate_amount], blank=True, null=True)
-    count = models.PositiveIntegerField()
+    count_come = models.PositiveIntegerField()
+    count_last = models.PositiveIntegerField(null=True,blank=True)
     creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, related_name='bread_item')
 
-
-
+    def save(self, *args, **kwargs):
+        self.count_last = self.count_come
+        super(BreadItem, self).save(*args, **kwargs)
+    
+    
     def __str__(self):
-        return f"{self.bread.name} {self.count}"
+        return f"{self.bread.name} {self.count_last}"
