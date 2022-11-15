@@ -15,12 +15,13 @@ class User(AbstractUser):
     last_name = models.CharField(verbose_name='Surname', max_length=50)
     email = models.EmailField(max_length=50, unique=True, blank=True, null=True)
     password = models.CharField(max_length=128)
-    role = models.CharField(max_length=20, choices=UserRoles.choices())
+    role = models.CharField(max_length=20, choices=UserRoles.choices(),default=UserRoles.client.value)
     image = models.FileField(upload_to=location_image, validators=[validate_image, custom_validator], blank=True, null=True,
                              help_text='Maximum file size allowed is 2Mb')
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['first_name', 'last_name']
     objects = CustomUserManager()
+
 
     @property
     def full_name(self):

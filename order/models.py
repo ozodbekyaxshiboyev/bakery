@@ -22,7 +22,7 @@ class OrderItem(BaseModel):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     bread = models.ForeignKey(Bread, on_delete=models.CASCADE,related_name='orderitem')
     count = models.PositiveIntegerField()
-    price = models.DecimalField(validators=[validate_amount])
+    price = models.FloatField(validators=[validate_amount])
 
     @property
     def get_total_price(self):

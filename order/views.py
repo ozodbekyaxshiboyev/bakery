@@ -1,34 +1,48 @@
 from django.shortcuts import render
-from django.db import models
-from main.models import BaseModel, Bread, BreadItem
-from main.models import validate_amount
+from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,CreateAPIView,RetrieveUpdateAPIView
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+from rest_framework import permissions, status
+
 from .enums import Status
-from accounts.models import Client
+from .serializers import OrderSerilizer,OrderItemSerilizer,OrderClientSerilizer
+from .models import Order,OrderItem
+from main.permissions import DirectorPermission,IsnotclientPermission,IsClient,IsOwner
+from rest_framework.decorators import api_view,permission_classes
 
 
-class Order(BaseModel):
-    client = models.ForeignKey(Client, on_delete=models.PROTECT,related_name='order')
-    address = models.CharField(max_length=200)
-    status = models.CharField(max_length=20, choices=Status.choices(), default=Status.new.value)
+class OrderListCreateApiView(ListCreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderClientSerilizer
+    permission_classes = [IsClient]
 
-    @property
-    def get_total_cost(self):
-        return sum(item.get_total_price for item in self.order_items.all())
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = queryset.filter(client=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
-    def __str__(self):
-        return f"{self.created_date} {self.client.full_name} {self.status}"
+
+class OrderDetailApiView(RetrieveUpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderClientSerilizer
+    permission_classes = [IsClient,IsOwner]
+    lookup_field = 'order_pk'
 
 
-class OrderItem(BaseModel):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
-    bread = models.ForeignKey(Bread, on_delete=models.CASCADE,related_name='orderitem')
-    count = models.PositiveIntegerField()
-    price = models.DecimalField(validators=[validate_amount])
+@api_view(http_method_names=['post'])
+@permission_classes([IsOwner,IsClient])
+def cancel_order(request,order_pk):
+    order = Order.objects.get(pk=order_pk)
+    if order:
+        order.status = Status.cancelled.value
+        return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    @property
-    def get_total_price(self):
-        return self.count * self.price
 
-    def __str__(self):
-        return f"{self.order} {self.bread.name} {self.count}"
+class OrderItemCreateApiView(CreateAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerilizer
+    permission_classes = [IsClient]
+
 
