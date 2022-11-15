@@ -15,23 +15,23 @@ from .permissions import DirectorPermission,IsnotclientPermission
 class CategoryViewset(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerilizer
-    permission_classes = [IsnotclientPermission]
+    permission_classes = [permissions.IsAuthenticated, IsnotclientPermission]
 
 
 class BakeryViewset(ModelViewSet):
     queryset = Bakery.objects.all()
     serializer_class = BakerySerilizer
-    permission_classes = [DirectorPermission]
+    permission_classes = [permissions.IsAuthenticated,DirectorPermission]
 
 
 class BreadViewset(ModelViewSet):
     queryset = Bread.objects.all()
     serializer_class = BreadSerilizer
-    permission_classes = [IsnotclientPermission]
+    permission_classes = [permissions.IsAuthenticated,IsnotclientPermission]
 
 
 class BreadItemViewset(ModelViewSet):
     queryset = BreadItem.objects.all()
     serializer_class = BreadItemSerilizer
-    permission_classes = [IsnotclientPermission]
+    permission_classes = [permissions.IsAuthenticated,IsnotclientPermission]
 

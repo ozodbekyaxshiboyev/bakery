@@ -3,7 +3,8 @@ from django.db import models
 from .enums import UserRoles
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
-from .managers import DirectorsManager, VendorsManager, BakersManager, ClientManager, CustomUserManager
+from .managers import DirectorsManager, VendorsManager, BakersManager, ClientManager, CustomUserManager, \
+    StaffManager
 from .services import location_image, validate_image, custom_validator
 from phonenumber_field import modelfields
 
@@ -32,7 +33,7 @@ class User(AbstractUser):
 
     class Meta:
         constraints = (models.UniqueConstraint(
-                name='unique_director_role',
+                name='bitta_direktor',
                 fields=['role'],
                 condition=models.Q(role=UserRoles.director.value)
             ),
@@ -62,6 +63,14 @@ class Vendor(User):
 
 class Client(User):
     objects = ClientManager()
+
+    class Meta:
+        proxy = True
+
+
+
+class Staff(User):
+    objects = StaffManager()
 
     class Meta:
         proxy = True

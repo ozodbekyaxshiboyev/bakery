@@ -43,7 +43,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(phone_number, first_name, last_name, email, password, **extra_fields)
 
 
-class DirectorsManager(models.Manager):
+class DirectorsManager(CustomUserManager):
     def get_queryset(self):
         return super(DirectorsManager, self).get_queryset().filter(
             role=UserRoles.director.value)
@@ -53,7 +53,7 @@ class DirectorsManager(models.Manager):
         return super(DirectorsManager, self).create(**kwargs)
 
 
-class VendorsManager(models.Manager):
+class VendorsManager(CustomUserManager):
     def get_queryset(self):
         return super(VendorsManager, self).get_queryset().filter(
             role=UserRoles.vendor.value)
@@ -63,7 +63,7 @@ class VendorsManager(models.Manager):
         return super(VendorsManager, self).create(**kwargs)
 
 
-class BakersManager(models.Manager):
+class BakersManager(CustomUserManager):
     def get_queryset(self):
         return super(BakersManager, self).get_queryset().filter(
             role=UserRoles.baker.value)
@@ -74,11 +74,13 @@ class BakersManager(models.Manager):
 
 
 
-class ClientManager(models.Manager):
+class ClientManager(CustomUserManager):
     def get_queryset(self):
         return super(ClientManager, self).get_queryset().filter(
             role=UserRoles.client.value)
 
-    def create(self, **kwargs):
-        kwargs.update({'role': UserRoles.client.value})
-        return super(ClientManager, self).create(**kwargs)
+
+class StaffManager(CustomUserManager):
+    def get_queryset(self):
+        return super(StaffManager, self).get_queryset().filter(
+            role__in=(UserRoles.director.value, UserRoles.baker.value,UserRoles.vendor.value,))

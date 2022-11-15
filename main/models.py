@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import User,Director,Vendor,Baker,Client
+from accounts.models import User,Director,Vendor,Baker,Client, Staff
 from django.db.models import Model
 from django.core.exceptions import ValidationError
 from phonenumber_field import modelfields
@@ -18,8 +18,8 @@ class BaseModel(models.Model):
 
 class Category(BaseModel):
     name = models.CharField(max_length=100, unique=True, db_index=True)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,related_name='child')
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,  related_name='category')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True,related_name='child',limit_choices_to={"is_deleted":False})
+    creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True,  related_name='category')
 
     def clean(self):
         if self.creator.role == UserRoles.client.value:
@@ -30,7 +30,8 @@ class Category(BaseModel):
         return self.parent is None
 
     def clean(self):
-        pass   #creatorni null bo`lmasligini tekshirish kerak
+        if not self.creator:
+            raise ValidationError("Creatori yuq!")
 
 
     def __str__(self):
@@ -44,7 +45,6 @@ class Bakery(BaseModel):
     is_active = models.BooleanField(default=True)
     open_at = models.TimeField()
     close_at = models.TimeField()
-    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='bakery')
 
 
     def clean(self):
