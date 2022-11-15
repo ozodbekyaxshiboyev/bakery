@@ -9,7 +9,6 @@ class Order(BaseModel):
     client = models.ForeignKey(Client, on_delete=models.PROTECT,related_name='order')
     address = models.CharField(max_length=200)
     status = models.CharField(max_length=20, choices=Status.choices(), default=Status.new.value)
-    price = models.FloatField(validators=[validate_amount])
 
     @property
     def get_total_cost(self):
@@ -23,6 +22,8 @@ class OrderItem(BaseModel):
     order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='order_items')
     bread = models.ForeignKey(Bread, on_delete=models.SET_NULL,null=True,related_name='orderitem')
     count = models.PositiveIntegerField()
+    price = models.FloatField(validators=[validate_amount])
+
 
     @property
     def get_total_price(self):

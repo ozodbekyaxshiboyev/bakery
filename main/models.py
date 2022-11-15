@@ -64,6 +64,7 @@ class Bread(BaseModel):
 
 
 class BreadItem(BaseModel):
+    comment = models.CharField(max_length=200,null=True,blank=True)
     bread = models.ForeignKey(Bread, on_delete=models.CASCADE, related_name='breaditem')
     price = models.FloatField(validators=[validate_amount])
     kg = models.FloatField(validators=[validate_amount], blank=True, null=True)
